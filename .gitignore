@@ -3,4 +3,5 @@
 logs/
 *.pyc
 env/
+mypython/
 __pycache__/
