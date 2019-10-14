@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function
 
-import tweepy, base64, requests, pickle
-#for v2 : imporve handling of creds, support more operations with less reused code
+import tweepy, base64, requests, pickle, json
+
 class twitter_client(object):
 
     def __init__(self):
@@ -24,26 +24,51 @@ class twitter_client(object):
         auth.set_access_token(access_token, access_token_secret)
         return auth
     
-    def tester(self, account):
-        '''get_user timeline api reference
+    def _try_for_status(self, request):
+        '''Reusable try block
+        Arguments:
+        self - instance reference
+        request - API call type with API endpoint
+        '''
+        try:
+            request.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logging.error("HTTP Error:" + str(e))
+            return False
+        return True
+
+
+    def get_user_timeline(self, account):
+        '''get_user timeline api reference returning important fields for food truck tracker
         Arguments:
         self - instance reference
         accounts - twitter accounts to get tweets from 
         '''
         auth = self._handle_creds()
-        api = tweepy.API(auth)
+        api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
         
         payload = (api.user_timeline(account))
-        print (payload)
-        return payload
+        user_load = payload[0]
+        return user_load
+
+    def post_user_timeline(self, tweetText):
+        '''get_user timeline api reference returning important fields for food truck tracker
+        Arguments:
+        self - instance reference
+        tweetText - text to tweet 
+        '''
+        auth = self._handle_creds()
+        api = tweepy.API(auth)
+        api.update_status(tweetText)
+        return []
         
         
 
 def main():
     client = twitter_client()
-    topDcfoodtrucks = ["pepebyjose", "LobstertruckDC", "dcslices", "DCEmpanadas", "CapMacDC", "bigcheesetruck", "TaKorean", "bbqbusdc", "hulagirltruck", "Borinquenlunchb"]
-    for foodtruck in topDcfoodtrucks:
-        client.tester(foodtruck)
+    #topDcfoodtrucks = ["pepebyjose", "LobstertruckDC", "dcslices", "DCEmpanadas", "CapMacDC", "bigcheesetruck", "TaKorean", "bbqbusdc", "hulagirltruck", "Borinquenlunchb"]
+    #for foodtruck in topDcfoodtrucks:
+    print(client.get_user_timeline("pepebyjose"))
 
 if __name__ == "__main__":
     main()
