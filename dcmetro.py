@@ -53,6 +53,7 @@ class metro_client(object):
         # Request parameters
             'LineCode': 'SV',
         })
+        payloads = []
         params = [red_params, yellow_params, green_params, blue_params, orange_params, silver_params]
         for param in params:
             try:
@@ -60,19 +61,22 @@ class metro_client(object):
                 conn.request("GET", "/Rail.svc/json/jStations?%s" % param, "{body}", headers)
                 response = conn.getresponse()
                 data = response.read()
-                print(data)
-                payload.append(data)
-                conn.close()
-            except Exception as e:
-                print("[Errno {0}] {1}".format(e.errno, e.strerror))
-
-        print('found:', payload)
-        return payload
+                jsonResponse = json.loads(data.decode('utf-8'))
+                stations = jsonResponse.get('Stations')
+                for i in stations:
+                    lat = i.get('Lat')
+                    lon = i.get('Lon')
+                    station_name = i.get('Name')
+                    payload = [station_name, lat, lon]
+                    payloads.append(payload)
+                    conn.close()
+            except requests.exceptions.HTTPError as e:
+                logging.error("HTTP Error:" + str(e))
+                return False
+        return payloads
 
 def main():
     client = metro_client()
-    #topDcfoodtrucks = ["pepebyjose", "LobstertruckDC", "dcslices", "DCEmpanadas", "CapMacDC", "bigcheesetruck", "TaKorean", "bbqbusdc", "hulagirltruck", "Borinquenlunchb"]
-    #for foodtruck in topDcfoodtrucks:
     print(client.build_params())
 
 if __name__ == "__main__":
