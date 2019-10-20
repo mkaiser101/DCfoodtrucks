@@ -1,13 +1,13 @@
 from twitta import twitter_client
-from dcmetro import metro_client 
+from dcmetro import metro_client
 import datetime, pickle
 
 
-def get_twitter_data(client):
+def get_twitter_data(TC):
     dataz = []
     topDcfoodtrucks = ["pepebyjose", "LobstertruckDC", "dcslices", "DCEmpanadas", "CapMacDC", "bigcheesetruck", "TaKorean", "bbqbusdc", "hulagirltruck", "Borinquenlunchb"]
     for foodtruck in topDcfoodtrucks:
-        payload = client.get_user_timeline(foodtruck)
+        payload = TC.get_user_timeline(foodtruck)
         user = payload.get("user").get("name")
         
      
@@ -18,15 +18,25 @@ def get_twitter_data(client):
         #print("text:", tweeted, "at:", timestamp,"by: ", user, "posted at:", post_stamp)
         payload = [post_stamp, user, tweeted, timestamp]
         #v2, maybe change text to predictions or choice, this can be test set though for later so no problem
-        #append to pickle file for historical data to be used later
+        
         dataz.append(payload)
     return dataz
 
-def get matches():
+def get_matches(MC, TC):
+    metro_data = MC.build_params()
+    twitter_data = get_twitter_data(TC)
+    for i in metro_data:
+        for j in twitter_data:
+            if i[0] in j[2]:
+                print(i[0])
+   
 
-def append_to_pickle(client):
+
+
+
+def append_to_pickle(TC):
     try:
-        to_pickle_v1 = get_twitter_data(client)
+        to_pickle_v1 = get_twitter_data(TC)
     except requests.exceptions.HTTPError as e:
         logging.error("HTTP Error:" + str(e))
         return False
@@ -47,8 +57,11 @@ def append_to_pickle(client):
         print("--------------------------")
 
 def main():
-    client = twitter_client()
-    print(append_to_pickle(client))
+    TC = twitter_client()
+    MC = metro_client()
+    print(get_matches(MC, TC))
+    print(get_twitter_data(TC))
+
 
 
 if __name__ == "__main__":
