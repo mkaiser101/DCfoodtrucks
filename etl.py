@@ -63,8 +63,7 @@ def get_matches(MC, TC):
     metro_data = MC.build_params()
     twitter_data = get_twitter_data(TC)
     geojasonz = []
-    geojson_template = {"type": "FeatureCollection", 
-    "features": ""}
+    
     
     for i in metro_data:
         for j in twitter_data:
@@ -85,10 +84,15 @@ def get_matches(MC, TC):
                 "Name": "%s" % (j[2])
             }
                 }
-                
+            #append load's of geojson and then put them inside of template      
+            #print(geojson_appender)
+            #geojsonload = geojasonz.append(geojson_appender)
+
     
-                geojsonz = geojson_template + geojson_appender
-                print(geojson_template)
+    # geojson_template = {"type": "FeatureCollection", 
+    # "features": ['%s'] % (geojsonload)}
+                #geojsonz = geojson_template + geojson_appender
+    # print(geojson_template)
             
 
              
@@ -125,13 +129,14 @@ def append_to_pickle(TC):
     with open('historyoffoodtrucks.pkl', 'rb') as f:
         newlist = pickle.load(f)
         print(newlist)
-
+        print("--------------------------")
         newlist.append(to_pickle_v1)
+        print(newlist)
         
     with open('historyoffoodtrucks.pkl', 'wb') as f:
         pickle.dump(newlist, f)
 
-        print("--------------------------")
+       
     with open('historyoffoodtrucks.pkl', 'rb') as f:
         mynewlist = pickle.load(f)
            
@@ -141,7 +146,8 @@ def append_to_pickle(TC):
 def main():
     TC = twitter_client()
     MC = metro_client()
-    print(get_matches(MC, TC))
+    #print(get_matches(MC, TC))
+    print(append_to_pickle(TC))
     # print(get_twitter_data(TC))
     #print(split_metro_station_names(MC))
 
